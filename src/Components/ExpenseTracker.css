@@ -1,5 +1,18 @@
+.tableContainer {
+  max-width: 100%;
+  overflow: scroll;
+  padding: 2px;
+}
+
 td,
 tr,
 th {
+  white-space: nowrap;
   border: 1px solid black;
+}
+
+.select {
+  width: 50%;
+  text-align: center;
+  font-size: 22px;
 }

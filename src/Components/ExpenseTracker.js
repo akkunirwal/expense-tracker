@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ExpenseTracker.css';
 
-// Mock data
 const initialData = {
 	"trips": [
 		{
@@ -72,6 +71,8 @@ const ExpenseTracker = () => {
 	const [isAddDateModalOpen, setIsAddDateModalOpen] = useState(false);
 	const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
 	const [isEditDateModalOpen, setIsEditDateModalOpen] = useState(false);
+	const [isNewEventModalOpen, setIsNewEventModalOpen] = useState(false);
+	const [newEventName, setNewEventName] = useState('');
 	const [modalData, setModalData] = useState({ dateIndex: 0, category: "", currentValue: 0, addValue: 0 });
 	const [newItem, setNewItem] = useState("");
 	const [newDate, setNewDate] = useState("");
@@ -126,15 +127,6 @@ const ExpenseTracker = () => {
 		setTrips(updatedTrips);
 		setSelectedTrip(updatedTrips.find(t => t.tripName === selectedTrip.tripName));
 		setIsExpenseModalOpen(false);
-	};
-
-	const handleItemNameChange = (index, newName) => {
-		const updatedItems = { ...selectedTrip.expenses };
-		const categories = { ...updatedItems[index].categories };
-		const updatedTrip = { ...selectedTrip };
-		updatedTrip.expenses[index].categories[newName] = categories[selectedTrip.expenses[index].categories];
-		delete categories[selectedTrip.expenses[index].categories];
-		setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
 	};
 
 	const handleAddItem = () => {
@@ -262,19 +254,71 @@ const ExpenseTracker = () => {
 		});
 	});
 
+	const addEventHandler = () => {
+		if (!newEventName) {
+			alert('Please fill in all fields.');
+			return;
+		}
+		let tripObj = {
+			"tripName": newEventName,
+			"expenses": [
+				{
+					"date": "2024-09-20",
+					"categories": {
+						"fare": 1000,
+					}
+				}
+			]
+		}
+		setTrips((prev) => (
+			[...prev, tripObj]
+		))
+		setNewEventName('');
+		setIsNewEventModalOpen(false);
+	};
+
+	const handleDeleteEvent = (e) => {
+		if (trips.length > 1) {
+			setTrips((prevTrips) => {
+				const updatedTrips = prevTrips.filter((t) => t.tripName !== selectedTrip.tripName);
+				// Set the new selected trip only if trips remain
+				if (updatedTrips.length > 0) {
+					setSelectedTrip(updatedTrips[0]);
+				}
+				return updatedTrips;
+			});
+		}
+	};
+
+
 	return (
 		<div className="container mt-4">
 			<h2>Expense Tracker</h2>
-
+			<select className="select" onChange={handleTripChange}>
+				{trips.map((trip, index) => (
+					<option key={index} value={trip.tripName}>
+						{trip.tripName}
+					</option>
+				))}
+			</select>
+			<i className="bi bi-trash" onClick={(e) => handleDeleteEvent(e)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
 			<div className="mb-3 d-flex mt-4 justify-content-between">
-				<h4>{selectedTrip.tripName}</h4>
+				<button
+					type="button"
+					className="btn btn-primary me-2"
+					data-bs-toggle="modal"
+					data-bs-target="#addEventModal"
+					onClick={() => setIsNewEventModalOpen(true)}
+				>
+					Add Event
+				</button>
 				<div>
 					<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}>Add Item</button>
-					<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}>Add Date</button>
+					<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}>Add Day</button>
 				</div>
 			</div>
 
-			<div className="table-responsive">
+			<div className="tableContainer">
 				<table className="table table-bordered">
 					<thead>
 						<tr>
@@ -447,6 +491,33 @@ const ExpenseTracker = () => {
 					</div>
 				</div>
 			)}
+
+			{isNewEventModalOpen && (
+				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+					<div className="modal-dialog">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title">Add New Event</h5>
+								<button type="button" className="btn-close" onClick={() => setIsNewEventModalOpen(false)}></button>
+							</div>
+							<div className="modal-body">
+								<input
+									type="text"
+									value={newEventName}
+									onChange={(e) => setNewEventName(e.target.value)}
+									className="form-control"
+								/>
+							</div>
+							<div className="modal-footer">
+								<button className="btn btn-primary" onClick={addEventHandler}>Add Event</button>
+								<button className="btn btn-secondary" onClick={() => setIsNewEventModalOpen(false)}>Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+
 		</div>
 	);
 };
