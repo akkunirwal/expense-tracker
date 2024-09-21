@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './ExpenseTracker.css';
 
 // Mock data
 const initialData = {
@@ -54,7 +55,7 @@ const initialData = {
 };
 
 const formatDate = (dateString) => {
-	const options = { day: 'numeric', month: 'long' };
+	const options = { day: 'numeric', month: 'short' };
 	const date = new Date(dateString);
 	return date.toLocaleDateString('en-US', options);
 };
@@ -69,9 +70,15 @@ const ExpenseTracker = () => {
 	const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 	const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 	const [isAddDateModalOpen, setIsAddDateModalOpen] = useState(false);
+	const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
+	const [isEditDateModalOpen, setIsEditDateModalOpen] = useState(false);
 	const [modalData, setModalData] = useState({ dateIndex: 0, category: "", currentValue: 0, addValue: 0 });
 	const [newItem, setNewItem] = useState("");
 	const [newDate, setNewDate] = useState("");
+	const [selectedItemIndex, setSelectedItemIndex] = useState(null);
+	const [selectedDateIndex, setSelectedDateIndex] = useState(null);
+	const [newItemName, setNewItemName] = useState('');
+	const [newExpenseDate, setNewExpenseDate] = useState('');
 
 	useEffect(() => {
 		localStorage.setItem('trips', JSON.stringify(trips));
@@ -132,15 +139,40 @@ const ExpenseTracker = () => {
 
 	const handleAddItem = () => {
 		if (newItem) {
-			const updatedItems = selectedTrip.expenses.map(expense => ({
+			const updatedExpenses = selectedTrip.expenses.map((expense) => ({
 				...expense,
 				categories: { ...expense.categories, [newItem]: 0 }
 			}));
-			const updatedTrip = { ...selectedTrip, expenses: updatedItems };
+
+			const updatedTrip = { ...selectedTrip, expenses: updatedExpenses };
 			setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
+			setSelectedTrip(updatedTrip);
 			setNewItem("");
 			setIsAddItemModalOpen(false);
 		}
+	};
+
+	const handleEditItemName = () => {
+		if (newItemName && selectedItemIndex !== null) {
+			const updatedExpenses = selectedTrip.expenses.map((expense) => {
+				const categories = { ...expense.categories };
+				categories[newItemName] = categories[items[selectedItemIndex]];
+				delete categories[items[selectedItemIndex]];
+				return { ...expense, categories };
+			});
+
+			const updatedTrip = { ...selectedTrip, expenses: updatedExpenses };
+			setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
+			setSelectedTrip(updatedTrip);
+			setNewItemName("");
+			setIsEditItemModalOpen(false);
+		}
+	};
+
+	const handleOpenEditItemModal = (index) => {
+		setSelectedItemIndex(index);
+		setNewItemName(items[index]);
+		setIsEditItemModalOpen(true);
 	};
 
 	const handleAddDate = () => {
@@ -152,6 +184,28 @@ const ExpenseTracker = () => {
 			setSelectedTrip(updatedTrip);
 			setNewDate("");
 			setIsAddDateModalOpen(false);
+		}
+	};
+
+	const handleOpenEditDateModal = (index) => {
+		setSelectedDateIndex(index);
+		setNewExpenseDate(selectedTrip.expenses[index].date);
+		setIsEditDateModalOpen(true);
+	};
+
+	const handleEditDate = () => {
+		if (newExpenseDate && selectedDateIndex !== null) {
+			const updatedExpenses = selectedTrip.expenses.map((expense, index) => {
+				if (index === selectedDateIndex) {
+					return { ...expense, date: newExpenseDate };
+				}
+				return expense;
+			});
+			const updatedTrip = { ...selectedTrip, expenses: updatedExpenses };
+			setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
+			setSelectedTrip(updatedTrip);
+			setNewExpenseDate("");
+			setIsEditDateModalOpen(false);
 		}
 	};
 
@@ -181,54 +235,52 @@ const ExpenseTracker = () => {
 			<h2>Expense Tracker</h2>
 
 			<div className="mb-3 d-flex mt-4 justify-content-between">
-				{/* <select className="" onChange={handleTripChange}>
-					{trips.map((trip, index) => (
-						<option key={index} value={trip.tripName}>{trip.tripName}</option>
-					))}
-				</select> */}
-				<h3>{selectedTrip.tripName}</h3>
+				<h4>{selectedTrip.tripName}</h4>
 				<div>
 					<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}>Add Item</button>
 					<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}>Add Date</button>
 				</div>
 			</div>
 
-
-			<table className="table table-bordered">
-				<thead>
-					<tr>
-						<th>Items</th>
-						{dates.map((date, index) => (
-							<th key={index}>{date}</th>
-						))}
-						<th>Total</th>
-					</tr>
-				</thead>
-				<tbody>
-					{items.map((item, rowIndex) => (
-						<tr key={rowIndex}>
-							<td>
-								{item}
-							</td>
-							{selectedTrip.expenses.map((expense, dateIndex) => (
-								<td key={dateIndex} onClick={() => handleOpenExpenseModal(dateIndex, item)} style={{ cursor: 'pointer' }}>
-									{expense.categories[item]}
-								</td>
+			<div className="table-responsive">
+				<table className="table table-bordered">
+					<thead>
+						<tr>
+							<th colSpan="2">Items</th>
+							{dates.map((date, index) => (
+								<th key={index} onClick={() => handleOpenEditDateModal(index)} style={{ cursor: 'pointer' }}>
+									{date}
+								</th>
 							))}
-							<td>{totals.rows[item]}</td>
+							<th>Total</th>
 						</tr>
-					))}
-				</tbody>
-				<tfoot>
-					<tr>
-						<td>Total</td>
-						{totals.columns.map((total, index) => (
-							<td key={index}>{total}</td>
+					</thead>
+					<tbody>
+						{items.map((item, rowIndex) => (
+							<tr key={rowIndex}>
+								<td colSpan="2" onClick={() => handleOpenEditItemModal(rowIndex)} style={{ cursor: 'pointer' }}>
+									{item}
+								</td>
+								{selectedTrip.expenses.map((expense, dateIndex) => (
+									<td key={dateIndex} onClick={() => handleOpenExpenseModal(dateIndex, item)} style={{ cursor: 'pointer' }}>
+										{expense.categories[item]}
+									</td>
+								))}
+								<td>{totals.rows[item]}</td>
+							</tr>
 						))}
-						<td>{totals.grandTotal}</td>
-					</tr>
-				</tfoot>
-			</table>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colSpan="2">Total</td>
+							{totals.columns.map((total, index) => (
+								<td key={index}>{total}</td>
+							))}
+							<td>{totals.grandTotal}</td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
 
 			{/* Expense Modal */}
 			{isExpenseModalOpen && (
@@ -283,6 +335,33 @@ const ExpenseTracker = () => {
 				</div>
 			)}
 
+			{/* Edit Item Modal */}
+			{isEditItemModalOpen && (
+				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+					<div className="modal-dialog">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title">Edit Item Name</h5>
+								<button type="button" className="btn-close" onClick={() => setIsEditItemModalOpen(false)}></button>
+							</div>
+							<div className="modal-body">
+								<input
+									type="text"
+									value={newItemName}
+									onChange={(e) => setNewItemName(e.target.value)}
+									placeholder="New Item Name"
+									className="form-control"
+								/>
+							</div>
+							<div className="modal-footer">
+								<button className="btn btn-primary" onClick={handleEditItemName}>Update Item Name</button>
+								<button className="btn btn-secondary" onClick={() => setIsEditItemModalOpen(false)}>Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
 			{/* Add Date Modal */}
 			{isAddDateModalOpen && (
 				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
@@ -303,6 +382,32 @@ const ExpenseTracker = () => {
 							<div className="modal-footer">
 								<button className="btn btn-primary" onClick={handleAddDate}>Add Date</button>
 								<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(false)}>Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Edit Date Modal */}
+			{isEditDateModalOpen && (
+				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+					<div className="modal-dialog">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title">Edit Date</h5>
+								<button type="button" className="btn-close" onClick={() => setIsEditDateModalOpen(false)}></button>
+							</div>
+							<div className="modal-body">
+								<input
+									type="date"
+									value={newExpenseDate}
+									onChange={(e) => setNewExpenseDate(e.target.value)}
+									className="form-control"
+								/>
+							</div>
+							<div className="modal-footer">
+								<button className="btn btn-primary" onClick={handleEditDate}>Update Date</button>
+								<button className="btn btn-secondary" onClick={() => setIsEditDateModalOpen(false)}>Cancel</button>
 							</div>
 						</div>
 					</div>
