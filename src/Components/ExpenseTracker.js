@@ -179,21 +179,20 @@ const ExpenseTracker = () => {
 	return (
 		<div className="container mt-4">
 			<h2>Expense Tracker</h2>
-			<div className="mb-3">
-				<label>Select Event: </label>
-				<select className="form-select" onChange={handleTripChange}>
+
+			<div className="mb-3 d-flex mt-4 justify-content-between">
+				<select className="" onChange={handleTripChange}>
 					{trips.map((trip, index) => (
 						<option key={index} value={trip.tripName}>{trip.tripName}</option>
 					))}
 				</select>
+				<h3>{selectedTrip.tripName}</h3>
+				<div>
+					<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}>Add Item</button>
+					<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}>Add Date</button>
+				</div>
 			</div>
 
-			<div className="mb-3">
-				<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}>Add Item</button>
-				<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}>Add Date</button>
-			</div>
-
-			<h3>{selectedTrip.tripName}</h3>
 
 			<table className="table table-bordered">
 				<thead>
@@ -209,11 +208,7 @@ const ExpenseTracker = () => {
 					{items.map((item, rowIndex) => (
 						<tr key={rowIndex}>
 							<td>
-								<input
-									type="text"
-									value={item}
-									onChange={(e) => handleItemNameChange(rowIndex, e.target.value)}
-								/>
+								{item}
 							</td>
 							{selectedTrip.expenses.map((expense, dateIndex) => (
 								<td key={dateIndex} onClick={() => handleOpenExpenseModal(dateIndex, item)} style={{ cursor: 'pointer' }}>
