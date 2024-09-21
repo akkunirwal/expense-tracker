@@ -181,11 +181,11 @@ const ExpenseTracker = () => {
 			<h2>Expense Tracker</h2>
 
 			<div className="mb-3 d-flex mt-4 justify-content-between">
-				<select className="" onChange={handleTripChange}>
+				{/* <select className="" onChange={handleTripChange}>
 					{trips.map((trip, index) => (
 						<option key={index} value={trip.tripName}>{trip.tripName}</option>
 					))}
-				</select>
+				</select> */}
 				<h3>{selectedTrip.tripName}</h3>
 				<div>
 					<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}>Add Item</button>
