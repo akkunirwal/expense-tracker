@@ -177,7 +177,9 @@ const ExpenseTracker = () => {
 
 	const handleAddDate = () => {
 		if (newDate) {
-			const newExpense = { date: newDate, categories: { food: 0, fare: 0, rent: 0, misc: 0 } };
+			const newCategories = {};
+			Object.keys(selectedTrip.expenses[0].categories).forEach((e) => newCategories[e] = 0)
+			const newExpense = { date: newDate, categories: newCategories };
 			const updatedExpenses = [...selectedTrip.expenses, newExpense];
 			const updatedTrip = { ...selectedTrip, expenses: updatedExpenses };
 			setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
@@ -207,6 +209,36 @@ const ExpenseTracker = () => {
 			setNewExpenseDate("");
 			setIsEditDateModalOpen(false);
 		}
+	};
+
+	const handleDeleteItem = (e, item) => {
+		e.stopPropagation();
+		if (Object.keys(selectedTrip.expenses[0].categories).length === 1) {
+			alert("You cannot delete the last item!");
+			return;
+		}
+
+		const updatedExpenses = selectedTrip.expenses.map(expense => {
+			const { [item]: _, ...remainingCategories } = expense.categories;
+			return { ...expense, categories: remainingCategories };
+		});
+
+		const updatedTrip = { ...selectedTrip, expenses: updatedExpenses };
+		setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
+		setSelectedTrip(updatedTrip);
+	};
+
+	const handleDeleteDate = (e, index) => {
+		e.stopPropagation();
+		if (selectedTrip.expenses.length === 1) {
+			alert("You cannot delete the last date!");
+			return;
+		}
+
+		const updatedExpenses = selectedTrip.expenses.filter((_, i) => i !== index);
+		const updatedTrip = { ...selectedTrip, expenses: updatedExpenses };
+		setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
+		setSelectedTrip(updatedTrip);
 	};
 
 	const items = Object.keys(selectedTrip.expenses[0].categories);
@@ -250,6 +282,7 @@ const ExpenseTracker = () => {
 							{dates.map((date, index) => (
 								<th key={index} onClick={() => handleOpenEditDateModal(index)} style={{ cursor: 'pointer' }}>
 									{date}
+									<i className="bi bi-trash" onClick={(e) => handleDeleteDate(e, index)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
 								</th>
 							))}
 							<th>Total</th>
@@ -260,6 +293,7 @@ const ExpenseTracker = () => {
 							<tr key={rowIndex}>
 								<td colSpan="2" onClick={() => handleOpenEditItemModal(rowIndex)} style={{ cursor: 'pointer' }}>
 									{item}
+									<i className="bi bi-trash" onClick={(e) => handleDeleteItem(e, item)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
 								</td>
 								{selectedTrip.expenses.map((expense, dateIndex) => (
 									<td key={dateIndex} onClick={() => handleOpenExpenseModal(dateIndex, item)} style={{ cursor: 'pointer' }}>
