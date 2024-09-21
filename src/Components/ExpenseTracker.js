@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Mock data
 const initialData = {
 	"trips": [
 		{
-			"tripName": "Trip to Goa",
+			"tripName": "Trip to Rishikesh",
 			"expenses": [
 				{
 					"date": "2024-09-18",
@@ -59,27 +60,40 @@ const formatDate = (dateString) => {
 };
 
 const ExpenseTracker = () => {
-	const [trips, setTrips] = useState(initialData.trips);
+	const [trips, setTrips] = useState(() => {
+		const savedTrips = localStorage.getItem('trips');
+		return savedTrips ? JSON.parse(savedTrips) : initialData.trips;
+	});
+
 	const [selectedTrip, setSelectedTrip] = useState(trips[0]);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [modalData, setModalData] = useState({ dateIndex: 0, category: "", value: 0 });
+	const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+	const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+	const [isAddDateModalOpen, setIsAddDateModalOpen] = useState(false);
+	const [modalData, setModalData] = useState({ dateIndex: 0, category: "", currentValue: 0, addValue: 0 });
+	const [newItem, setNewItem] = useState("");
+	const [newDate, setNewDate] = useState("");
+
+	useEffect(() => {
+		localStorage.setItem('trips', JSON.stringify(trips));
+	}, [trips]);
 
 	const handleTripChange = (e) => {
 		const trip = trips.find(t => t.tripName === e.target.value);
 		setSelectedTrip(trip);
 	};
 
-	const handleOpenModal = (dateIndex, category) => {
-		setModalData({ dateIndex, category, value: 0 });
-		setIsModalOpen(true);
+	const handleOpenExpenseModal = (dateIndex, category) => {
+		const currentValue = selectedTrip.expenses[dateIndex].categories[category];
+		setModalData({ dateIndex, category, currentValue, addValue: 0 });
+		setIsExpenseModalOpen(true);
 	};
 
-	const handleCloseModal = () => {
-		setIsModalOpen(false);
+	const handleCloseExpenseModal = () => {
+		setIsExpenseModalOpen(false);
 	};
 
-	const handleExpenseChange = (e) => {
-		setModalData({ ...modalData, value: e.target.value });
+	const handleAddValueChange = (e) => {
+		setModalData({ ...modalData, addValue: e.target.value });
 	};
 
 	const handleSubmitExpense = () => {
@@ -91,7 +105,7 @@ const ExpenseTracker = () => {
 							...expense,
 							categories: {
 								...expense.categories,
-								[modalData.category]: expense.categories[modalData.category] + Number(modalData.value)
+								[modalData.category]: modalData.currentValue + Number(modalData.addValue)
 							}
 						};
 					}
@@ -103,11 +117,45 @@ const ExpenseTracker = () => {
 		});
 
 		setTrips(updatedTrips);
-		setSelectedTrip({ ...selectedTrip, expenses: updatedTrips.find(t => t.tripName === selectedTrip.tripName).expenses });
-		setIsModalOpen(false);  // Close the modal after adding expense
+		setSelectedTrip(updatedTrips.find(t => t.tripName === selectedTrip.tripName));
+		setIsExpenseModalOpen(false);
 	};
 
-	const items = ["food", "fare", "rent", "misc"];
+	const handleItemNameChange = (index, newName) => {
+		const updatedItems = { ...selectedTrip.expenses };
+		const categories = { ...updatedItems[index].categories };
+		const updatedTrip = { ...selectedTrip };
+		updatedTrip.expenses[index].categories[newName] = categories[selectedTrip.expenses[index].categories];
+		delete categories[selectedTrip.expenses[index].categories];
+		setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
+	};
+
+	const handleAddItem = () => {
+		if (newItem) {
+			const updatedItems = selectedTrip.expenses.map(expense => ({
+				...expense,
+				categories: { ...expense.categories, [newItem]: 0 }
+			}));
+			const updatedTrip = { ...selectedTrip, expenses: updatedItems };
+			setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
+			setNewItem("");
+			setIsAddItemModalOpen(false);
+		}
+	};
+
+	const handleAddDate = () => {
+		if (newDate) {
+			const newExpense = { date: newDate, categories: { food: 0, fare: 0, rent: 0, misc: 0 } };
+			const updatedExpenses = [...selectedTrip.expenses, newExpense];
+			const updatedTrip = { ...selectedTrip, expenses: updatedExpenses };
+			setTrips(trips.map(trip => trip.tripName === selectedTrip.tripName ? updatedTrip : trip));
+			setSelectedTrip(updatedTrip);
+			setNewDate("");
+			setIsAddDateModalOpen(false);
+		}
+	};
+
+	const items = Object.keys(selectedTrip.expenses[0].categories);
 	const dates = selectedTrip.expenses.map((expense) => formatDate(expense.date));
 
 	const totals = {
@@ -129,19 +177,25 @@ const ExpenseTracker = () => {
 	});
 
 	return (
-		<div>
+		<div className="container mt-4">
 			<h2>Expense Tracker</h2>
+			<div className="mb-3">
+				<label>Select Event: </label>
+				<select className="form-select" onChange={handleTripChange}>
+					{trips.map((trip, index) => (
+						<option key={index} value={trip.tripName}>{trip.tripName}</option>
+					))}
+				</select>
+			</div>
 
-			<label htmlFor="tripSelect">Select Trip: </label>
-			<select id="tripSelect" onChange={handleTripChange}>
-				{trips.map((trip, index) => (
-					<option key={index} value={trip.tripName}>{trip.tripName}</option>
-				))}
-			</select>
+			<div className="mb-3">
+				<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}>Add Item</button>
+				<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}>Add Date</button>
+			</div>
 
 			<h3>{selectedTrip.tripName}</h3>
 
-			<table border="1" cellPadding="10">
+			<table className="table table-bordered">
 				<thead>
 					<tr>
 						<th>Items</th>
@@ -154,11 +208,16 @@ const ExpenseTracker = () => {
 				<tbody>
 					{items.map((item, rowIndex) => (
 						<tr key={rowIndex}>
-							<td>{item.charAt(0).toUpperCase() + item.slice(1)}</td>
+							<td>
+								<input
+									type="text"
+									value={item}
+									onChange={(e) => handleItemNameChange(rowIndex, e.target.value)}
+								/>
+							</td>
 							{selectedTrip.expenses.map((expense, dateIndex) => (
-								<td key={dateIndex}>
+								<td key={dateIndex} onClick={() => handleOpenExpenseModal(dateIndex, item)} style={{ cursor: 'pointer' }}>
 									{expense.categories[item]}
-									<button onClick={() => handleOpenModal(dateIndex, item)}>Add</button>
 								</td>
 							))}
 							<td>{totals.rows[item]}</td>
@@ -176,16 +235,82 @@ const ExpenseTracker = () => {
 				</tfoot>
 			</table>
 
-			{isModalOpen && (
-				<div className="modal" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', padding: '20px', backgroundColor: 'white', border: '1px solid #ccc' }}>
-					<h4>Add Expense for {modalData.category.charAt(0).toUpperCase() + modalData.category.slice(1)}</h4>
-					<label>
-						Amount:
-						<input type="number" value={modalData.value} onChange={handleExpenseChange} />
-					</label>
-					<br />
-					<button onClick={handleSubmitExpense}>Add Expense</button>
-					<button onClick={handleCloseModal}>Cancel</button>
+			{/* Expense Modal */}
+			{isExpenseModalOpen && (
+				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+					<div className="modal-dialog">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title">Add Expense for {modalData.category.charAt(0).toUpperCase() + modalData.category.slice(1)}</h5>
+								<button type="button" className="btn-close" onClick={handleCloseExpenseModal}></button>
+							</div>
+							<div className="modal-body">
+								<label>Current Value: {modalData.currentValue}</label>
+								<div className="mb-3">
+									<label>Add Value:</label>
+									<input type="number" value={modalData.addValue} onChange={handleAddValueChange} className="form-control" />
+								</div>
+								<label>New Value: {modalData.currentValue + Number(modalData.addValue)}</label>
+							</div>
+							<div className="modal-footer">
+								<button className="btn btn-primary" onClick={handleSubmitExpense}>Update Expense</button>
+								<button className="btn btn-secondary" onClick={handleCloseExpenseModal}>Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Add Item Modal */}
+			{isAddItemModalOpen && (
+				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+					<div className="modal-dialog">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title">Add New Item</h5>
+								<button type="button" className="btn-close" onClick={() => setIsAddItemModalOpen(false)}></button>
+							</div>
+							<div className="modal-body">
+								<input
+									type="text"
+									value={newItem}
+									onChange={(e) => setNewItem(e.target.value)}
+									placeholder="New Item Name"
+									className="form-control"
+								/>
+							</div>
+							<div className="modal-footer">
+								<button className="btn btn-primary" onClick={handleAddItem}>Add Item</button>
+								<button className="btn btn-secondary" onClick={() => setIsAddItemModalOpen(false)}>Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Add Date Modal */}
+			{isAddDateModalOpen && (
+				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+					<div className="modal-dialog">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title">Add New Date</h5>
+								<button type="button" className="btn-close" onClick={() => setIsAddDateModalOpen(false)}></button>
+							</div>
+							<div className="modal-body">
+								<input
+									type="date"
+									value={newDate}
+									onChange={(e) => setNewDate(e.target.value)}
+									className="form-control"
+								/>
+							</div>
+							<div className="modal-footer">
+								<button className="btn btn-primary" onClick={handleAddDate}>Add Date</button>
+								<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(false)}>Cancel</button>
+							</div>
+						</div>
+					</div>
 				</div>
 			)}
 		</div>
