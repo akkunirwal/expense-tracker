@@ -146,10 +146,20 @@ const ExpenseTracker = () => {
 
 	const handleEditItemName = () => {
 		if (newItemName && selectedItemIndex !== null) {
+			const currentItemName = items[selectedItemIndex];
+
+			// If the new name is the same as the old name, do nothing
+			if (newItemName === currentItemName) {
+				setIsEditItemModalOpen(false);
+				setNewItemName("");
+				return;
+			}
+
 			const updatedExpenses = selectedTrip.expenses.map((expense) => {
 				const categories = { ...expense.categories };
-				categories[newItemName] = categories[items[selectedItemIndex]];
-				delete categories[items[selectedItemIndex]];
+				// Rename the item key
+				categories[newItemName] = categories[currentItemName];
+				delete categories[currentItemName];
 				return { ...expense, categories };
 			});
 
@@ -160,6 +170,7 @@ const ExpenseTracker = () => {
 			setIsEditItemModalOpen(false);
 		}
 	};
+
 
 	const handleOpenEditItemModal = (index) => {
 		setSelectedItemIndex(index);
@@ -310,11 +321,11 @@ const ExpenseTracker = () => {
 					data-bs-target="#addEventModal"
 					onClick={() => setIsNewEventModalOpen(true)}
 				>
-					Add Event
+					<i class="bi bi-plus-circle"></i> Event
 				</button>
 				<div>
-					<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}>Add Item</button>
-					<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}>Add Day</button>
+					<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}><i class="bi bi-cart-plus"></i> Item</button>
+					<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}><i class="bi bi-calendar2-plus"></i> Day</button>
 				</div>
 			</div>
 
@@ -363,19 +374,27 @@ const ExpenseTracker = () => {
 			{/* Expense Modal */}
 			{isExpenseModalOpen && (
 				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-					<div className="modal-dialog">
-						<div className="modal-content">
+					<div className="modal-dialog modal-dialog-centered">
+						<div className="modal-content custom-modal-width">
 							<div className="modal-header">
 								<h5 className="modal-title">Add Expense for {modalData.category.charAt(0).toUpperCase() + modalData.category.slice(1)}</h5>
 								<button type="button" className="btn-close" onClick={handleCloseExpenseModal}></button>
 							</div>
-							<div className="modal-body">
-								<label>Current Value: {modalData.currentValue}</label>
-								<div className="mb-3">
-									<label>Add Value:</label>
-									<input type="number" value={modalData.addValue} onChange={handleAddValueChange} className="form-control" />
+							<div>
+								<div className="mb-3 d-flex">
+
+									<div className="width50 d-flex justify-content-center"><label>Current Value </label></div>
+									<div className="width50 d-flex justify-content-center">
+										<label>{modalData.currentValue} </label></div>
 								</div>
-								<label>New Value: {modalData.currentValue + Number(modalData.addValue)}</label>
+								<div className="mb-3 d-flex">
+									<div className="width50 d-flex justify-content-center"><label>Add Value</label></div>
+									<div className="width50 d-flex justify-content-center"><input className='input' type="number" placeholder={"enter value to add"} value={modalData.addValue} onChange={handleAddValueChange} /></div>
+								</div>
+								<div className="d-flex">
+									<div className="width50 d-flex justify-content-center"><label>New Value </label></div>
+									<div className="width50 d-flex justify-content-center"><label>{modalData.currentValue + Number(modalData.addValue)}</label></div>
+								</div>
 							</div>
 							<div className="modal-footer">
 								<button className="btn btn-primary" onClick={handleSubmitExpense}>Update Expense</button>
@@ -389,7 +408,7 @@ const ExpenseTracker = () => {
 			{/* Add Item Modal */}
 			{isAddItemModalOpen && (
 				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-					<div className="modal-dialog">
+					<div className="modal-dialog modal-dialog-centered">
 						<div className="modal-content">
 							<div className="modal-header">
 								<h5 className="modal-title">Add New Item</h5>
@@ -416,7 +435,7 @@ const ExpenseTracker = () => {
 			{/* Edit Item Modal */}
 			{isEditItemModalOpen && (
 				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-					<div className="modal-dialog">
+					<div className="modal-dialog modal-dialog-centered">
 						<div className="modal-content">
 							<div className="modal-header">
 								<h5 className="modal-title">Edit Item Name</h5>
@@ -443,7 +462,7 @@ const ExpenseTracker = () => {
 			{/* Add Date Modal */}
 			{isAddDateModalOpen && (
 				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-					<div className="modal-dialog">
+					<div className="modal-dialog modal-dialog-centered">
 						<div className="modal-content">
 							<div className="modal-header">
 								<h5 className="modal-title">Add New Date</h5>
@@ -469,7 +488,7 @@ const ExpenseTracker = () => {
 			{/* Edit Date Modal */}
 			{isEditDateModalOpen && (
 				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-					<div className="modal-dialog">
+					<div className="modal-dialog modal-dialog-centered">
 						<div className="modal-content">
 							<div className="modal-header">
 								<h5 className="modal-title">Edit Date</h5>
@@ -494,7 +513,7 @@ const ExpenseTracker = () => {
 
 			{isNewEventModalOpen && (
 				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
-					<div className="modal-dialog">
+					<div className="modal-dialog modal-dialog-centered">
 						<div className="modal-content">
 							<div className="modal-header">
 								<h5 className="modal-title">Add New Event</h5>
@@ -504,6 +523,7 @@ const ExpenseTracker = () => {
 								<input
 									type="text"
 									value={newEventName}
+									placeholder='Enter New Event'
 									onChange={(e) => setNewEventName(e.target.value)}
 									className="form-control"
 								/>
