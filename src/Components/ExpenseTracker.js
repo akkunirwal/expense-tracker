@@ -372,7 +372,15 @@ const ExpenseTracker = () => {
 								</div>
 								<div className="mb-3 d-flex">
 									<div className="width50 d-flex justify-content-center"><label>Add Value</label></div>
-									<div className="width50 d-flex justify-content-center"><input className='input' type="number" placeholder={" Enter Value"} value={modalData.addValue === 0 ? null : modalData.addValue} onChange={handleAddValueChange} /></div>
+									<div className="width50 d-flex justify-content-center">
+										<input className='input' type="number" placeholder={" Enter Value"} value={modalData.addValue === 0 ? null : modalData.addValue} onChange={handleAddValueChange}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter') {
+													handleSubmitExpense();
+												}
+											}}
+										/>
+									</div>
 								</div>
 								<div className="d-flex">
 									<div className="width50 d-flex justify-content-center"><label>New Value </label></div>
@@ -404,6 +412,11 @@ const ExpenseTracker = () => {
 									onChange={(e) => setNewItem(e.target.value)}
 									placeholder="New Item Name"
 									className="form-control"
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											handleAddItem();
+										}
+									}}
 								/>
 							</div>
 							<div className="modal-footer">
@@ -430,6 +443,11 @@ const ExpenseTracker = () => {
 									value={newItemName}
 									onChange={(e) => setNewItemName(e.target.value)}
 									placeholder="New Item Name"
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											handleEditItemName();
+										}
+									}}
 									className="form-control"
 								/>
 							</div>
@@ -508,6 +526,11 @@ const ExpenseTracker = () => {
 									value={newEventName}
 									placeholder='Enter New Event'
 									onChange={(e) => setNewEventName(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') {
+											addEventHandler();
+										}
+									}}
 									className="form-control"
 								/>
 							</div>
