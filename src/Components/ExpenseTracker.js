@@ -80,6 +80,7 @@ const ExpenseTracker = () => {
 	const [selectedDateIndex, setSelectedDateIndex] = useState(null);
 	const [newItemName, setNewItemName] = useState('');
 	const [newExpenseDate, setNewExpenseDate] = useState('');
+	const [showRecentOnly, setShowRecentOnly] = useState(true);
 
 	useEffect(() => {
 		localStorage.setItem('trips', JSON.stringify(trips));
@@ -304,28 +305,39 @@ const ExpenseTracker = () => {
 
 	return (
 		<div className="container mt-4">
-			<h2>Expense Tracker</h2>
-			<select className="select" onChange={handleTripChange}>
-				{trips.map((trip, index) => (
-					<option key={index} value={trip.tripName}>
-						{trip.tripName}
-					</option>
-				))}
-			</select>
-			<i className="bi bi-trash" onClick={(e) => handleDeleteEvent(e)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
-			<div className="mb-3 d-flex mt-4 justify-content-between">
+			<h1 className='mb-4'>Expense Tracker</h1>
+			<div className="eventContainer">
+				<select className="select btn-primary" onChange={handleTripChange}>
+					{trips.map((trip, index) => (
+						<option key={index} value={trip.tripName}>
+							{trip.tripName}
+						</option>
+					))}
+				</select>
 				<button
 					type="button"
-					className="btn btn-primary me-2"
+					className="btn btn-primary ms-2"
 					data-bs-toggle="modal"
 					data-bs-target="#addEventModal"
 					onClick={() => setIsNewEventModalOpen(true)}
 				>
-					<i class="bi bi-plus-circle"></i> Event
+					<i class="bi bi-plus-circle"></i>
 				</button>
+				<button
+					type="button"
+					className="btn btn-danger ms-2"
+					data-bs-toggle="modal"
+					data-bs-target="#addEventModal"
+					onClick={(e) => handleDeleteEvent(e)}
+				>
+					<i className="bi bi-trash" style={{ cursor: 'pointer' }}></i>
+				</button>
+			</div>
+			<h2>{selectedTrip.tripName} Expenses</h2>
+			<div className="mb-3 d-flex mt-4 justify-content-between">
+				<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}><i class="bi bi-cart-plus"></i> Item</button>
 				<div>
-					<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}><i class="bi bi-cart-plus"></i> Item</button>
-					<button className="btn btn-secondary" onClick={() => setIsAddDateModalOpen(true)}><i class="bi bi-calendar2-plus"></i> Day</button>
+					<button className="btn btn-warning" onClick={() => setIsAddDateModalOpen(true)}><i class="bi bi-calendar2-plus"></i> Day</button>
 				</div>
 			</div>
 
@@ -337,7 +349,7 @@ const ExpenseTracker = () => {
 							{dates.map((date, index) => (
 								<th key={index} onClick={() => handleOpenEditDateModal(index)} style={{ cursor: 'pointer' }}>
 									{date}
-									<i className="bi bi-trash" onClick={(e) => handleDeleteDate(e, index)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
+									<i className="bi bi-calendar-x red-icon" onClick={(e) => handleDeleteDate(e, index)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
 								</th>
 							))}
 							<th>Total</th>
@@ -347,8 +359,10 @@ const ExpenseTracker = () => {
 						{items.map((item, rowIndex) => (
 							<tr key={rowIndex}>
 								<td colSpan="2" onClick={() => handleOpenEditItemModal(rowIndex)} style={{ cursor: 'pointer' }}>
-									{item}
-									<i className="bi bi-trash" onClick={(e) => handleDeleteItem(e, item)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
+									<div className="d-flex justify-content-between">
+										{item}
+										<i className="bi bi-trash-fill red-icon" onClick={(e) => handleDeleteItem(e, item)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
+									</div>
 								</td>
 								{selectedTrip.expenses.map((expense, dateIndex) => (
 									<td key={dateIndex} onClick={() => handleOpenExpenseModal(dateIndex, item)} style={{ cursor: 'pointer' }}>
