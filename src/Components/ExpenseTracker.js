@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ExpensePieChart from './ExpensePieChart';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ExpenseTracker.css';
 
@@ -402,6 +403,8 @@ const ExpenseTracker = () => {
 					</div>
 				</div>
 			)}
+
+			<ExpensePieChart selectedTrip={selectedTrip} />
 
 			{/* Add Item Modal */}
 			{isAddItemModalOpen && (
