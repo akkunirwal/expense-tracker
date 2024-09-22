@@ -39,7 +39,7 @@ const ExpenseTracker = () => {
 	const [isEditDateModalOpen, setIsEditDateModalOpen] = useState(false);
 	const [isNewEventModalOpen, setIsNewEventModalOpen] = useState(false);
 	const [newEventName, setNewEventName] = useState('');
-	const [modalData, setModalData] = useState({ dateIndex: 0, category: "", currentValue: 0, addValue: 0 });
+	const [modalData, setModalData] = useState({ dateIndex: 0, category: "", currentValue: 0, addValue: 0, newValue: 0 });
 	const [newItem, setNewItem] = useState("");
 	const [newDate, setNewDate] = useState("");
 	const [selectedItemIndex, setSelectedItemIndex] = useState(null);
@@ -82,7 +82,11 @@ const ExpenseTracker = () => {
 	};
 
 	const handleAddValueChange = (e) => {
-		setModalData({ ...modalData, addValue: e.target.value });
+		setModalData((prevModalData) => ({ ...prevModalData, addValue: e.target.value, newValue: Number(prevModalData.currentValue) + Number(e.target.value) }));
+	};
+
+	const handleNewValueChange = (e) => {
+		setModalData((prevModalData) => ({ ...prevModalData, newValue: e.target.value }));
 	};
 
 	const handleSubmitExpense = () => {
@@ -94,7 +98,7 @@ const ExpenseTracker = () => {
 							...expense,
 							categories: {
 								...expense.categories,
-								[modalData.category]: modalData.currentValue + Number(modalData.addValue)
+								[modalData.category]: Number(modalData.newValue)
 							}
 						};
 					}
@@ -399,7 +403,16 @@ const ExpenseTracker = () => {
 								</div>
 								<div className="d-flex mb-3">
 									<div className="width50 d-flex justify-content-center"><label>New Value </label></div>
-									<div className="width50 d-flex justify-content-center"><label>{modalData.currentValue + Number(modalData.addValue)}</label></div>
+									<div className="width50 d-flex justify-content-center">
+										{/* <label>{modalData.currentValue + Number(modalData.addValue)}</label> */}
+										<input className='input' type="number" placeholder={" Enter Value"} value={modalData.newValue === 0 ? null : modalData.newValue} onChange={handleNewValueChange}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter') {
+													handleSubmitExpense();
+												}
+											}}
+										/>
+									</div>
 								</div>
 							</div>
 							<div className="modal-footer">
