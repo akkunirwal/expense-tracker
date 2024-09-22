@@ -47,17 +47,24 @@ const ExpenseTracker = () => {
 	const [newItemName, setNewItemName] = useState('');
 	const [newExpenseDate, setNewExpenseDate] = useState('');
 	const [showRecentOnly, setShowRecentOnly] = useState(true);
-	const inputRef = useRef(null);
+	const expenseInputRef = useRef(null);
+	const itemInputRef = useRef(null);
 
 	useEffect(() => {
 		localStorage.setItem('trips', JSON.stringify(trips));
 	}, [trips]);
 
 	useEffect(() => {
-		if (isExpenseModalOpen && inputRef.current) {
-			inputRef.current.focus();
+		if (isExpenseModalOpen && expenseInputRef.current) {
+			expenseInputRef.current.focus();
 		}
 	}, [isExpenseModalOpen]);
+
+	useEffect(() => {
+		if (isAddItemModalOpen && itemInputRef.current) {
+			itemInputRef.current.focus();
+		}
+	}, [isAddItemModalOpen]);
 
 	const handleTripChange = (e) => {
 		const trip = trips.find(t => t.tripName === e.target.value);
@@ -381,7 +388,7 @@ const ExpenseTracker = () => {
 								<div className="mb-3 d-flex">
 									<div className="width50 d-flex justify-content-center"><label>Add Value</label></div>
 									<div className="width50 d-flex justify-content-center">
-										<input className='input' type="number" ref={inputRef} placeholder={" Enter Value"} value={modalData.addValue === 0 ? null : modalData.addValue} onChange={handleAddValueChange}
+										<input className='input' type="number" ref={expenseInputRef} placeholder={" Enter Value"} value={modalData.addValue === 0 ? null : modalData.addValue} onChange={handleAddValueChange}
 											onKeyDown={(e) => {
 												if (e.key === 'Enter') {
 													handleSubmitExpense();
@@ -422,6 +429,7 @@ const ExpenseTracker = () => {
 									onChange={(e) => setNewItem(e.target.value)}
 									placeholder="New Item Name"
 									className="form-control"
+									ref={itemInputRef}
 									onKeyDown={(e) => {
 										if (e.key === 'Enter') {
 											handleAddItem();
