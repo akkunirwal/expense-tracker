@@ -4,6 +4,14 @@
   padding: 2px;
 }
 
+table {
+  font-size: 18px;
+}
+
+h2 {
+  font-weight: 700;
+}
+
 td,
 tr,
 th {
@@ -46,7 +54,9 @@ th {
 .greenBackColor {
   padding: 7%;
   background-color: #a1d6b2;
+  background-color: #16423c;
   margin-bottom: 0px;
+  color: white;
 }
 
 .lightGreen {

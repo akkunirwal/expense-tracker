@@ -7,20 +7,17 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const ExpensePieChart = ({ selectedTrip }) => {
 	const items = Object.keys(selectedTrip.expenses[0].categories);
 
-	// Calculate the total amount spent per item
 	const totalPerItem = items.map(item => {
 		return selectedTrip.expenses.reduce((sum, expense) => sum + expense.categories[item], 0);
 	});
 
-	// Calculate the grand total
 	const grandTotal = totalPerItem.reduce((sum, amount) => sum + amount, 0);
 
-	// Generate chart data
 	const data = {
 		labels: items,
 		datasets: [
 			{
-				data: totalPerItem.map(amount => ((amount / grandTotal) * 100).toFixed(2)), // Convert to percentages
+				data: totalPerItem.map(amount => ((amount / grandTotal) * 100).toFixed(2)),
 				backgroundColor: [
 					'#FF6384',
 					'#36A2EB',
@@ -41,10 +38,30 @@ const ExpensePieChart = ({ selectedTrip }) => {
 		]
 	};
 
+	const options = {
+		plugins: {
+			tooltip: {
+				backgroundColor: 'rgba(0, 0, 0, 0.8)',
+				titleColor: '#fff',
+				bodyColor: '#fff',
+				borderColor: '#fff',
+				borderWidth: 1,
+				padding: 15,
+				displayColors: false,
+				callbacks: {
+					label: (tooltipItem) => {
+						const percentage = Number(tooltipItem.raw).toFixed(2) + '%';
+						return `${percentage}`;
+					}
+				}
+			}
+		}
+	};
+
 	return (
 		<div className='mt-3 mb-2'>
 			<h3>% of Total Money Spent on Item</h3>
-			<Pie data={data} />
+			<Pie data={data} options={options} />
 		</div>
 	);
 };
