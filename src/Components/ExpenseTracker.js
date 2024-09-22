@@ -329,7 +329,7 @@ const ExpenseTracker = () => {
 								<td onClick={() => handleOpenEditItemModal(rowIndex)} style={{ cursor: 'pointer' }}>
 									<div className="d-flex">
 										<div className="flex1 text-center">{item}</div>
-										<div className="flex1"><i className="bi bi-trash-fill red-icon" onClick={(e) => handleDeleteItem(e, item)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
+										<div ><i className="bi bi-trash-fill red-icon" onClick={(e) => handleDeleteItem(e, item)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
 										</div>
 									</div>
 								</td>
