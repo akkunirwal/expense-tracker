@@ -372,7 +372,7 @@ const ExpenseTracker = () => {
 								<button type="button" className="btn-close" onClick={handleCloseExpenseModal}></button>
 							</div>
 							<div>
-								<div className="mb-3 d-flex">
+								<div className="my-3 d-flex">
 
 									<div className="width50 d-flex justify-content-center"><label>Current Value </label></div>
 									<div className="width50 d-flex justify-content-center">
@@ -390,7 +390,7 @@ const ExpenseTracker = () => {
 										/>
 									</div>
 								</div>
-								<div className="d-flex">
+								<div className="d-flex mb-3">
 									<div className="width50 d-flex justify-content-center"><label>New Value </label></div>
 									<div className="width50 d-flex justify-content-center"><label>{modalData.currentValue + Number(modalData.addValue)}</label></div>
 								</div>
