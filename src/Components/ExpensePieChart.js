@@ -19,17 +19,27 @@ const ExpensePieChart = ({ selectedTrip }) => {
 			{
 				data: totalPerItem.map(amount => ((amount / grandTotal) * 100).toFixed(2)),
 				backgroundColor: [
-					'#FF6384',
-					'#36A2EB',
-					'#FFCE56',
-					'#4BC0C0',
-					'#9966FF',
-					'#FF9F40'
-				],
+					'#FF6384', // Vivid Red
+					'#FFCE56', // Bright Yellow
+					'#FF5733', // Vivid Orange
+					'#33FF57', // Neon Green
+					'#FF9F40', // Bright Tangerine
+					'#9966FF', // Bright Purple
+					'#FF334A', // Bright Coral
+					'#FF1F8E', // Bright Pink
+					'#3DFF5D', // Bright Lime Green
+					'#FF951F', // Bright Amber
+					'#8A2BE2', // Blue Violet
+					'#FF4500', // Orange Red
+					'#00CED1', // Dark Turquoise
+				]
+				,
 				hoverBackgroundColor: [
 					'#FF6384',
 					'#36A2EB',
 					'#FFCE56',
+					'#FF5733',
+					'#33FF57',
 					'#4BC0C0',
 					'#9966FF',
 					'#FF9F40'
