@@ -45,6 +45,21 @@ th {
 .eventContainer {
   display: flex;
   justify-content: flex-start;
-  margin-bottom: 20px;
   align-items: center;
+}
+
+.greenBackColor {
+  padding: 7%;
+  background-color: #a1d6b2;
+  margin-bottom: 0px;
+}
+
+.lightGreen {
+  background-color: #cedf9f;
+}
+
+.lightYellow {
+  height: 100%;
+  border-top: 2px solid black;
+  background-color: #f1f3c2;
 }

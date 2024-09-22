@@ -303,9 +303,9 @@ const ExpenseTracker = () => {
 	};
 
 
-	return (
-		<div className="container mt-4">
-			<h1 className='mb-4'>Expense Tracker</h1>
+	return (<>
+		<h1 className='greenBackColor'>Expense Tracker</h1>
+		<div className="container py-4 lightGreen">
 			<div className="eventContainer">
 				<select className="select btn-primary" onChange={handleTripChange}>
 					{trips.map((trip, index) => (
@@ -333,6 +333,9 @@ const ExpenseTracker = () => {
 					<i className="bi bi-trash" style={{ cursor: 'pointer' }}></i>
 				</button>
 			</div>
+		</div>
+
+		<div className="container pt-4 lightYellow">
 			<h2>{selectedTrip.tripName} Expenses</h2>
 			<div className="mb-3 d-flex mt-4 justify-content-between">
 				<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}><i class="bi bi-cart-plus"></i> Item</button>
@@ -553,6 +556,7 @@ const ExpenseTracker = () => {
 
 
 		</div>
+	</>
 	);
 };
 
