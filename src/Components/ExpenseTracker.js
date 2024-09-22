@@ -313,11 +313,11 @@ const ExpenseTracker = () => {
 				<table className="table table-bordered">
 					<thead>
 						<tr>
-							<th colSpan="2">Items</th>
+							<th >Items</th>
 							{dates.map((date, index) => (
 								<th key={index} onClick={() => handleOpenEditDateModal(index)} style={{ cursor: 'pointer' }}>
 									{date}
-									<i className="bi bi-calendar-x red-icon" onClick={(e) => handleDeleteDate(e, index)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
+									<i className="bi bi-calendar-x red-icon" onClick={(e) => handleDeleteDate(e, index)} style={{ cursor: 'pointer', marginLeft: '12px' }}></i>
 								</th>
 							))}
 							<th>Total</th>
@@ -326,10 +326,11 @@ const ExpenseTracker = () => {
 					<tbody>
 						{items.map((item, rowIndex) => (
 							<tr key={rowIndex}>
-								<td colSpan="2" onClick={() => handleOpenEditItemModal(rowIndex)} style={{ cursor: 'pointer' }}>
-									<div className="d-flex justify-content-between">
-										{item}
-										<i className="bi bi-trash-fill red-icon" onClick={(e) => handleDeleteItem(e, item)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
+								<td onClick={() => handleOpenEditItemModal(rowIndex)} style={{ cursor: 'pointer' }}>
+									<div className="d-flex">
+										<div className="flex1 text-center">{item}</div>
+										<div className="flex1"><i className="bi bi-trash-fill red-icon" onClick={(e) => handleDeleteItem(e, item)} style={{ cursor: 'pointer', marginLeft: '8px' }}></i>
+										</div>
 									</div>
 								</td>
 								{selectedTrip.expenses.map((expense, dateIndex) => (
@@ -343,7 +344,7 @@ const ExpenseTracker = () => {
 					</tbody>
 					<tfoot>
 						<tr>
-							<td colSpan="2">Total</td>
+							<td >Total</td>
 							{totals.columns.map((total, index) => (
 								<td key={index}>{total}</td>
 							))}
@@ -357,7 +358,7 @@ const ExpenseTracker = () => {
 			{isExpenseModalOpen && (
 				<div className="modal fade show" style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
 					<div className="modal-dialog modal-dialog-centered">
-						<div className="modal-content custom-modal-width">
+						<div className="modal-content">
 							<div className="modal-header">
 								<h5 className="modal-title">Add Expense for {modalData.category.charAt(0).toUpperCase() + modalData.category.slice(1)}</h5>
 								<button type="button" className="btn-close" onClick={handleCloseExpenseModal}></button>
@@ -371,7 +372,7 @@ const ExpenseTracker = () => {
 								</div>
 								<div className="mb-3 d-flex">
 									<div className="width50 d-flex justify-content-center"><label>Add Value</label></div>
-									<div className="width50 d-flex justify-content-center"><input className='input' type="number" placeholder={"enter value to add"} value={modalData.addValue} onChange={handleAddValueChange} /></div>
+									<div className="width50 d-flex justify-content-center"><input className='input' type="number" placeholder={" Enter Value"} value={modalData.addValue === 0 ? null : modalData.addValue} onChange={handleAddValueChange} /></div>
 								</div>
 								<div className="d-flex">
 									<div className="width50 d-flex justify-content-center"><label>New Value </label></div>

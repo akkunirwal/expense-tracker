@@ -37,11 +37,6 @@ th {
   text-align: center;
 }
 
-.custom-modal-width {
-  width: 84%; /* Set the modal width to 80% */
-  margin: auto;
-}
-
 .eventContainer {
   display: flex;
   justify-content: flex-start;
@@ -62,4 +57,9 @@ th {
   height: 100%;
   border-top: 2px solid black;
   background-color: #f1f3c2;
+}
+
+.flex1 {
+  width: 50%;
+  overflow: hidden;
 }
