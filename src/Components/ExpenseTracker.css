@@ -63,3 +63,7 @@ th {
   width: 100%;
   overflow: hidden;
 }
+
+.tableContainer::-webkit-scrollbar {
+  display: none; /* Hides the scrollbar for WebKit browsers */
+}
