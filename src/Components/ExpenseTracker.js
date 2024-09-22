@@ -5,47 +5,12 @@ import './ExpenseTracker.css';
 const initialData = {
 	"trips": [
 		{
-			"tripName": "Trip to Rishikesh",
+			"tripName": "Rishikesh",
 			"expenses": [
 				{
-					"date": "2024-09-18",
+					"date": new Date().toISOString().split('T')[0],
 					"categories": {
-						"food": 200,
-						"fare": 100,
-						"rent": 1200,
-						"misc": 150
-					}
-				},
-				{
-					"date": "2024-09-19",
-					"categories": {
-						"food": 250,
-						"fare": 80,
-						"rent": 1200,
-						"misc": 100
-					}
-				}
-			]
-		},
-		{
-			"tripName": "Trip to Manali",
-			"expenses": [
-				{
-					"date": "2024-09-20",
-					"categories": {
-						"food": 300,
-						"fare": 150,
-						"rent": 1000,
-						"misc": 200
-					}
-				},
-				{
-					"date": "2024-09-21",
-					"categories": {
-						"food": 220,
-						"fare": 90,
-						"rent": 1000,
-						"misc": 180
+						"rent": 1200
 					}
 				}
 			]
