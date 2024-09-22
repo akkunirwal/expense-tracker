@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './ExpenseTracker.css';
 
@@ -46,10 +46,17 @@ const ExpenseTracker = () => {
 	const [newItemName, setNewItemName] = useState('');
 	const [newExpenseDate, setNewExpenseDate] = useState('');
 	const [showRecentOnly, setShowRecentOnly] = useState(true);
+	const inputRef = useRef(null);
 
 	useEffect(() => {
 		localStorage.setItem('trips', JSON.stringify(trips));
 	}, [trips]);
+
+	useEffect(() => {
+		if (isExpenseModalOpen && inputRef.current) {
+			inputRef.current.focus();
+		}
+	}, [isExpenseModalOpen]);
 
 	const handleTripChange = (e) => {
 		const trip = trips.find(t => t.tripName === e.target.value);
@@ -373,7 +380,7 @@ const ExpenseTracker = () => {
 								<div className="mb-3 d-flex">
 									<div className="width50 d-flex justify-content-center"><label>Add Value</label></div>
 									<div className="width50 d-flex justify-content-center">
-										<input className='input' type="number" placeholder={" Enter Value"} value={modalData.addValue === 0 ? null : modalData.addValue} onChange={handleAddValueChange}
+										<input className='input' type="number" ref={inputRef} placeholder={" Enter Value"} value={modalData.addValue === 0 ? null : modalData.addValue} onChange={handleAddValueChange}
 											onKeyDown={(e) => {
 												if (e.key === 'Enter') {
 													handleSubmitExpense();
