@@ -6,6 +6,16 @@
 
 table {
   font-size: 18px;
+
+  th:first-child,
+  td:first-child {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    left: 0;
+    background-color: #fff; /* Ensures the sticky column's background */
+    z-index: 2; /* Add z-index to prevent overlap */
+    border-right: 1px solid black; /* Manually add right border */
+  }
 }
 
 h2 {

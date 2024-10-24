@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ExpensePieChart from './ExpensePieChart';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './ExpenseTracker.css';
+import './ExpenseTracker.scss';
 
 const initialData = {
 	"trips": [
@@ -31,7 +31,7 @@ const ExpenseTracker = () => {
 		return savedTrips ? JSON.parse(savedTrips) : initialData.trips;
 	});
 
-	const [selectedTrip, setSelectedTrip] = useState(trips[0]);
+	const [selectedTrip, setSelectedTrip] = useState(trips.at(-1));
 	const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
 	const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 	const [isAddDateModalOpen, setIsAddDateModalOpen] = useState(false);
@@ -65,6 +65,8 @@ const ExpenseTracker = () => {
 			itemInputRef.current.focus();
 		}
 	}, [isAddItemModalOpen]);
+
+	const filteredTrip = showRecentOnly ? selectedTrip.expenses.slice(-1) : selectedTrip.expenses;
 
 	const handleTripChange = (e) => {
 		const trip = trips.find(t => t.tripName === e.target.value);
@@ -231,6 +233,7 @@ const ExpenseTracker = () => {
 
 	const items = Object.keys(selectedTrip.expenses[0].categories);
 	const dates = selectedTrip.expenses.map((expense) => formatDate(expense.date));
+	const filteredDates = filteredTrip.map((expense) => formatDate(expense.date));
 
 	const totals = {
 		rows: {},
@@ -249,6 +252,9 @@ const ExpenseTracker = () => {
 			totals.grandTotal += expense.categories[item];
 		});
 	});
+
+	console.log(totals);
+	const filteredcolumns = showRecentOnly ? totals.columns.slice(-1) : totals.columns;
 
 	const addEventHandler = () => {
 		if (!newEventName) {
@@ -291,7 +297,7 @@ const ExpenseTracker = () => {
 		<h1 className='greenBackColor'>Expense Tracker</h1>
 		<div className="container py-4 lightGreen">
 			<div className="eventContainer">
-				<select className="select btn-primary" onChange={handleTripChange}>
+				<select className="select btn-primary" onChange={handleTripChange} value={selectedTrip?.tripName}>
 					{trips.map((trip, index) => (
 						<option key={index} value={trip.tripName}>
 							{trip.tripName}
@@ -324,6 +330,7 @@ const ExpenseTracker = () => {
 			<div className="mb-3 d-flex mt-4 justify-content-between">
 				<button className="btn btn-primary me-2" onClick={() => setIsAddItemModalOpen(true)}><i class="bi bi-cart-plus"></i> Item</button>
 				<div>
+					<button className="btn btn-primary me-2" onClick={() => setShowRecentOnly((prev) => !prev)}>{`Show ${showRecentOnly ? 'All' : 'Latest'}`}</button>
 					<button className="btn btn-warning" onClick={() => setIsAddDateModalOpen(true)}><i class="bi bi-calendar2-plus"></i> Day</button>
 				</div>
 			</div>
@@ -333,7 +340,7 @@ const ExpenseTracker = () => {
 					<thead>
 						<tr>
 							<th >Items</th>
-							{dates.map((date, index) => (
+							{filteredDates.map((date, index) => (
 								<th key={index} onClick={() => handleOpenEditDateModal(index)} style={{ cursor: 'pointer' }}>
 									{date}
 									<i className="bi bi-calendar-x red-icon" onClick={(e) => handleDeleteDate(e, index)} style={{ cursor: 'pointer', marginLeft: '12px' }}></i>
@@ -352,7 +359,7 @@ const ExpenseTracker = () => {
 										</div>
 									</div>
 								</td>
-								{selectedTrip.expenses.map((expense, dateIndex) => (
+								{filteredTrip.map((expense, dateIndex) => (
 									<td key={dateIndex} onClick={() => handleOpenExpenseModal(dateIndex, item)} style={{ cursor: 'pointer' }}>
 										{expense.categories[item]}
 									</td>
@@ -364,7 +371,7 @@ const ExpenseTracker = () => {
 					<tfoot>
 						<tr>
 							<td >Total</td>
-							{totals.columns.map((total, index) => (
+							{filteredcolumns.map((total, index) => (
 								<td key={index}>{total}</td>
 							))}
 							<td>{totals.grandTotal}</td>
